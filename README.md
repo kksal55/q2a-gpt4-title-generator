@@ -165,47 +165,6 @@ To test how the plugin behaves in different scenarios, follow these steps:
 These tests will help you verify that the plugin publishes questions normally with the original title when the GPT API fails or times out.
 
 
-## Contributing
-
-
-Contributions are welcome! If you'd like to contribute to this project:
-
-
-1. **Fork** the repository on GitHub.
-2. **Clone** your fork locally:
-
-
-   ```bash
-   git clone https://github.com/yourusername/gpt4-title-generator.git
-   ```
-
-
-3. **Create a branch** for your feature or bug fix:
-
-
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-
-
-4. **Commit** your changes with a descriptive message:
-
-
-   ```bash
-   git commit -am 'Add a new feature: YourFeatureName'
-   ```
-
-
-5. **Push** your branch to your GitHub fork:
-
-
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
-
-
-6. **Open a Pull Request** on the original repository.
-
 
 ## License
 
