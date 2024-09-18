@@ -187,8 +187,3 @@ This project is licensed under the [MIT License](LICENSE). For more information,
 
 **Disclaimer:** This project is not affiliated with or endorsed by OpenAI.
 
-
----
-
-
-*Please replace `[your-email@example.com]` with your actual email address.*
