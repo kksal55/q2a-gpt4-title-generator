@@ -6,26 +6,226 @@ class qa_html_theme_layer extends qa_html_theme_base {
         if (qa_request() == 'ask') {
             $qa_root = qa_path_html('');
             $script = <<<EOT
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Font Awesome CSS (İkonlar için) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
+<!-- Modal ve Buton Stilleri -->
+<style>
+/* Modal Temel Yapısı */
+.custom-modal {
+    display: none; /* Başlangıçta gizli */
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5); /* Arkadaki koyu fon */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal İçeriği Konumlandırma */
+.custom-modal-dialog {
+    position: relative;
+    width: 95%;
+    max-width: 600px;
+    margin: auto;
+}
+
+/* Modal İçeriği */
+.custom-modal-content {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Gölge efekti */
+    overflow: hidden;
+}
+
+/* Modal Başlık */
+.custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #4e73df;
+    color: #fff;
+}
+
+/* Modal Başlık Metni */
+.custom-modal-title {
+    margin: 0;
+    font-size: 1.0rem;
+    font-weight: bold;
+}
+
+/* Kapatma Butonu */
+.custom-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* Modal Gövde */
+.custom-modal-body {
+    padding: 20px;
+    font-size: 1.1rem;
+    color: #5a5c69;
+    text-align: center;
+}
+
+/* Modal Alt Bilgi */
+.custom-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f1f1f1;
+}
+
+/* Buton Stilleri */
+.custom-btn {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Birincil Buton */
+.custom-btn-primary {
+    background-color: #4e73df;
+    color: #fff;
+}
+
+.custom-btn-primary:hover {
+    background-color: #2e59d9;
+}
+
+/* İkincil (Outline) Buton */
+.custom-btn-outline-secondary {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.custom-btn-outline-secondary:hover {
+    background-color: #e2e6ea;
+}
+
+/* Başarı (Success) Buton */
+.custom-btn-success {
+    background-color: #1cc88a;
+    color: #fff;
+}
+
+.custom-btn-success:hover {
+    background-color: #17a673;
+}
+
+/* Form Kontrolü */
+.custom-form-control {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Modal Gösterme */
+.custom-modal.show {
+    display: flex;
+}
+</style>
+
 <script>
-// jQuery ve Bootstrap JS dosyalarını ekliyoruz
-var scriptJquery = document.createElement('script');
-scriptJquery.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
-document.head.appendChild(scriptJquery);
+// Modal HTML yapısı
+var modalHtml = `
+<!-- GPT Modal -->
+<div id="gptModal" class="custom-modal">
+    <div class="custom-modal-dialog">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">
+                    <i class="fas fa-magic"></i> &nbsp;Yapay Zeka Tarafından Oluşturulan Yeni Başlık
+                </h5>
+                <button type="button" class="custom-close" id="gptModalClose">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <p id="gptModalTitle" class="custom-lead text-center font-weight-bold text-dark"></p>
+            </div>
+            <div class="custom-modal-footer">
+                <button id="gptEditButton" type="button" class="custom-btn custom-btn-outline-secondary">
+                    <i class="fas fa-edit"></i> &nbsp;Düzenle
+                </button>
+                <button id="gptAcceptButton" type="button" class="custom-btn custom-btn-primary">
+                    <i class="fas fa-check"></i> &nbsp;Kabul Et ve Devam Et
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-var scriptBootstrap = document.createElement('script');
-scriptBootstrap.src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js';
-document.head.appendChild(scriptBootstrap);
+<!-- Başlığı Düzenle Modal -->
+<div id="gptEditModal" class="custom-modal">
+    <div class="custom-modal-dialog">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header" style="background-color: #1cc88a;">
+                <h5 class="custom-modal-title">
+                    <i class="fas fa-edit"></i> &nbsp;Başlığı Düzenleyin
+                </h5>
+                <button type="button" class="custom-close" id="gptEditModalClose">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <label for="gptEditInput" class="font-weight-bold">Yeni Başlık</label>
+                <input type="text" id="gptEditInput" class="custom-form-control" />
+            </div>
+            <div class="custom-modal-footer">
+                <button id="gptSaveButton" type="button" class="custom-btn custom-btn-success">
+                    <i class="fas fa-save"></i>&nbsp;Kaydet ve Devam Et
+                </button>
+                <button type="button" class="custom-btn custom-btn-outline-secondary" id="gptCancelEditButton">&nbsp;İptal</button>
+            </div>
+        </div>
+    </div>
+</div>
+`;
 
-scriptBootstrap.onload = function() {
-    // Bootstrap JS yüklendikten sonra kodumuzu çalıştırıyoruz
-    console.log("Bootstrap JS yüklendi.");
-    initGptTitleGenerator();
-};
+// Modal'ları sayfaya ekle
+document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+// Modal açma ve kapama fonksiyonları
+function showModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+    }
+}
+
+function closeModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+// Kapatma butonlarına olay ekle
+document.addEventListener('click', function(event) {
+    if (event.target.matches('#gptModalClose')) {
+        closeModal('gptModal');
+    }
+    if (event.target.matches('#gptEditModalClose') || event.target.matches('#gptCancelEditButton')) {
+        closeModal('gptEditModal');
+    }
+});
+
+// Form submit olayını ele al
 function initGptTitleGenerator() {
     console.log("JavaScript kodu yüklendi.");
     var form = document.querySelector('form[name="ask"]');
@@ -54,7 +254,7 @@ function initGptTitleGenerator() {
             console.log("Başlık:", title);
             console.log("İçerik:", content);
 
-            // AJAX ile sunucuya istekte bulunuyoruz
+            // AJAX isteği
             var xhr = new XMLHttpRequest();
             var ajaxUrl = "{$qa_root}index.php/gpt-title-generator";
             console.log("AJAX isteği URL'si:", ajaxUrl);
@@ -70,15 +270,60 @@ function initGptTitleGenerator() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         console.log("AJAX isteği başarılı.");
-                        var response = JSON.parse(xhr.responseText);
-                        var newTitle = response.new_title;
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            var newTitle = response.new_title;
 
-                        if (newTitle) {
-                            // Modal ile kullanıcıya gösteriyoruz
-                            showGptModal(newTitle);
-                        } else {
-                            console.log("Yeni başlık oluşturulamadı.");
-                            // GPT API başarısız oldu, formu normal şekilde gönderiyoruz
+                            if (newTitle) {
+                                // Modal ile kullanıcıya gösteriyoruz
+                                showModal('gptModal');
+                                document.getElementById('gptModalTitle').textContent = newTitle;
+
+                                // Kabul Et ve Devam Et butonuna tıklama
+                                var acceptButton = document.getElementById('gptAcceptButton');
+                                acceptButton.addEventListener('click', function() {
+                                    closeModal('gptModal');
+                                    titleInput.value = newTitle;
+
+                                    // `gpt_title` değerini gizli bir input olarak ekliyoruz
+                                    var hiddenTitleInput = document.createElement("input");
+                                    hiddenTitleInput.type = "hidden";
+                                    hiddenTitleInput.name = "gpt_title";
+                                    hiddenTitleInput.value = newTitle;
+                                    form.appendChild(hiddenTitleInput);
+
+                                    // `gpt_title_confirmed` değerini gizli bir input olarak ekliyoruz
+                                    var hiddenConfirmInput = document.createElement("input");
+                                    hiddenConfirmInput.type = "hidden";
+                                    hiddenConfirmInput.name = "gpt_title_confirmed";
+                                    hiddenConfirmInput.value = "1";
+                                    form.appendChild(hiddenConfirmInput);
+
+                                    console.log("Form yeniden gönderiliyor.");
+                                    form.submit();
+                                }, { once: true });
+
+                                // Başlığı Düzenle butonuna tıklama
+                                var editButton = document.getElementById('gptEditButton');
+                                editButton.addEventListener('click', function() {
+                                    closeModal('gptModal');
+                                    showEditModal(newTitle);
+                                }, { once: true });
+
+                            } else {
+                                console.log("Yeni başlık oluşturulamadı.");
+                                // GPT API başarısız oldu, formu normal şekilde gönderiyoruz
+                                var hiddenInput = document.createElement("input");
+                                hiddenInput.type = "hidden";
+                                hiddenInput.name = "gpt_api_failed";
+                                hiddenInput.value = "1";
+                                form.appendChild(hiddenInput);
+                                form.submit();
+                            }
+                        } catch (e) {
+                            console.log("JSON parse hatası:", e);
+                            alert("Başlık oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+                            // Hata durumunda formu normal şekilde gönderiyoruz
                             var hiddenInput = document.createElement("input");
                             hiddenInput.type = "hidden";
                             hiddenInput.name = "gpt_api_failed";
@@ -130,59 +375,27 @@ function initGptTitleGenerator() {
     } else {
         console.log("Form bulunamadı.");
     }
+}
 
-    // Modal fonksiyonları
-    function showGptModal(newTitle) {
-        var modal = $('#gptModal');
-        var modalTitle = $('#gptModalTitle');
-        var acceptButton = $('#gptAcceptButton');
-        var editButton = $('#gptEditButton');
+// Edit Modal Fonksiyonu
+function showEditModal(currentTitle) {
+    var editModal = document.getElementById('gptEditModal');
+    var editInput = document.getElementById('gptEditInput');
+    var saveButton = document.getElementById('gptSaveButton');
 
-        modalTitle.text(newTitle);
-        modal.modal('show');
-
-        // Kabul Et ve Devam Et butonu
-        acceptButton.off('click').on('click', function() {
-            modal.modal('hide');
-            document.querySelector("input[name='title']").value = newTitle;
-
-            // `gpt_title` değerini gizli bir input olarak ekliyoruz
-            var hiddenTitleInput = document.createElement("input");
-            hiddenTitleInput.type = "hidden";
-            hiddenTitleInput.name = "gpt_title";
-            hiddenTitleInput.value = newTitle;
-            form.appendChild(hiddenTitleInput);
-
-            // Formu yeniden gönderiyoruz
-            var hiddenInput = document.createElement("input");
-            hiddenInput.type = "hidden";
-            hiddenInput.name = "gpt_title_confirmed";
-            hiddenInput.value = "1";
-            form.appendChild(hiddenInput);
-            console.log("Form yeniden gönderiliyor.");
-            form.submit();
-        });
-
-        // Başlığı Düzenle butonu
-        editButton.off('click').on('click', function() {
-            modal.modal('hide');
-            showEditModal(newTitle);
-        });
+    if (editInput) {
+        editInput.value = currentTitle;
     }
 
-    function showEditModal(currentTitle) {
-        var editModal = $('#gptEditModal');
-        var editInput = $('#gptEditInput');
-        var saveButton = $('#gptSaveButton');
+    showModal('gptEditModal');
 
-        editInput.val(currentTitle);
-        editModal.modal('show');
+    // Kaydet ve Devam Et butonuna tıklama
+    saveButton.addEventListener('click', function() {
+        var userTitle = editInput.value;
+        closeModal('gptEditModal');
 
-        // Kaydet ve Devam Et butonu
-        saveButton.off('click').on('click', function() {
-            var userTitle = editInput.val();
-            editModal.modal('hide');
-
+        var form = document.querySelector('form[name="ask"]');
+        if (form) {
             document.querySelector("input[name='title']").value = userTitle;
 
             // `gpt_title` değerini gizli bir input olarak ekliyoruz
@@ -192,137 +405,40 @@ function initGptTitleGenerator() {
             hiddenTitleInput.value = userTitle;
             form.appendChild(hiddenTitleInput);
 
-            // Formu yeniden gönderiyoruz
-            var hiddenInput = document.createElement("input");
-            hiddenInput.type = "hidden";
-            hiddenInput.name = "gpt_title_confirmed";
-            hiddenInput.value = "1";
-            form.appendChild(hiddenInput);
+            // `gpt_title_confirmed` değerini gizli bir input olarak ekliyoruz
+            var hiddenConfirmInput = document.createElement("input");
+            hiddenConfirmInput.type = "hidden";
+            hiddenConfirmInput.name = "gpt_title_confirmed";
+            hiddenConfirmInput.value = "1";
+            form.appendChild(hiddenConfirmInput);
+
             console.log("Form yeniden gönderiliyor.");
             form.submit();
-        });
+        }
+    }, { once: true });
+}
+
+// Font Awesome yüklenmesini bekleyip, init fonksiyonunu başlat
+function loadScripts() {
+    // Font Awesome'ın yüklendiğinden emin ol
+    var faCheck = document.createElement('i');
+    faCheck.className = 'fas fa-check';
+    document.body.appendChild(faCheck);
+    if (faCheck.offsetWidth === 0) {
+        console.error("Font Awesome yüklenemedi.");
     }
+    document.body.removeChild(faCheck);
 
-    // Modal HTML yapısı
-    var modalHtml = `
-<!-- GPT Modal -->
-<div id="gptModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gptModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content border-0">
-            <div class="modal-header" style="background-color: #4e73df; color: #fff;">
-                <h5 id="gptModalLabel" class="modal-title">
-                    <i class="fas fa-magic"></i> Yapay Zeka Tarafından Oluşturulan Yeni Başlık
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p id="gptModalTitle" class="lead text-center font-weight-bold text-dark"></p>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button id="gptEditButton" type="button" class="btn btn-outline-secondary">
-                    <i class="fas fa-edit"></i> Düzenle
-                </button>
-                <button id="gptAcceptButton" type="button" class="btn btn-primary">
-                    <i class="fas fa-check"></i> Kabul Et ve Devam Et
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Başlığı Düzenle Modal -->
-<div id="gptEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gptEditModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content border-0">
-            <div class="modal-header" style="background-color: #1cc88a; color: #fff;">
-                <h5 id="gptEditModalLabel" class="modal-title">
-                    <i class="fas fa-edit"></i> Başlığı Düzenleyin
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="gptEditInput" class="font-weight-bold">Yeni Başlık</label>
-                    <input type="text" id="gptEditInput" class="form-control form-control-lg" />
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="gptSaveButton" type="button" class="btn btn-success">
-                    <i class="fas fa-save"></i> Kaydet ve Devam Et
-                </button>
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">İptal</button>
-            </div>
-        </div>
-    </div>
-</div>
-`;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
+    // Modal ve işlevleri başlat
+    initGptTitleGenerator();
 }
+
+// Sayfa yüklendiğinde script'i başlat
+window.addEventListener('load', loadScripts);
 </script>
-
-<style>
-/* Modal İçerik Özelleştirmeleri */
-.modal-content {
-    border-radius: 10px; /* Köşeleri yuvarlatma */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Gölge efekti */
-}
-
-/* Başlık Metni */
-.modal-title {
-    font-size: 1.0rem;
-    font-weight: bold;
-}
-
-/* Modal Body Metni */
-#gptModalTitle {
-    font-size: 1.2rem;
-    color: #5a5c69;
-}
-
-/* Form Etiketleri */
-.modal-body label {
-    font-size: 1rem;
-    color: #4e73df;
-}
-
-/* Buton İkonları Arası Boşluk */
-.btn i {
-    margin-right: 5px;
-}
-
-/* Buton Hover Efektleri */
-.btn-primary:hover {
-    background-color: #2e59d9;
-    border-color: #2653d4;
-}
-
-.btn-success:hover {
-    background-color: #17a673;
-    border-color: #138f65;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #e2e6ea;
-    border-color: #d3d9df;
-}
-
-/* Close Butonu Rengi */
-.close {
-    opacity: 0.8;
-}
-
-.close:hover {
-    opacity: 1;
-}
-</style>
-
 EOT;
             $this->output_raw($script);
         }
     }
 }
+?>
