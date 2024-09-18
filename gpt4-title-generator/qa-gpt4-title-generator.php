@@ -59,7 +59,6 @@ class qa_gpt4_title_generator_page {
 
     function generate_title_with_gpt4($content, $title) {
         // OpenAI API anahtarınızı buradan alıyoruz
-        //$api_key = 'OPENAI_API_KEY';
         $api_key = 'YOUR_OPENAI_API_KEY';
 
         if (empty($api_key)) {
