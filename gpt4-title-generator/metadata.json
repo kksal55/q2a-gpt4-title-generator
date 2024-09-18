@@ -1,0 +1,11 @@
+{
+	"name": "GPT-4 Başlık Oluşturucu",
+	"description": "GPT-4 Başlık Oluşturucu description",
+	"version": "1.0.0",
+	"date": "2024-09-18",
+	"author": "Koksal IYIGUN",
+	"author_uri": "http://www.question2answer.org",
+	"license": "GPLv2",
+	"min_q2a": "1.8",
+	"load_order": "after_db_init"
+}
