@@ -69,7 +69,7 @@ class qa_gpt4_title_generator_page {
         $postData = [
             'model' => 'gpt-4o-mini',
             'messages' => [
-                ['role' => 'system', 'content' => 'Kullanıcının post içeriğine göre başlığı güncelle. Anlamlı ve aynı zamanda seo için uygun başlık oluştur. Oluşturulan başlık eğer soru ise soru işareti ekle. Başlık 14 kelimeyi geçmesin. Başlığı içeriğin yazldığı dilde hazırla.'],
+                ['role' => 'system', 'content' => 'Update the title based on the user\'s post content. Create a meaningful and SEO-friendly title. If the generated title is a question, add a question mark. The title should not exceed 14 words. The title should be in the same language as the content.'],
                 ['role' => 'user', 'content' => $title . '-' . $content],
             ],
             'max_tokens' => 80,
