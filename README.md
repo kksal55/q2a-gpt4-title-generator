@@ -3,6 +3,8 @@
 
 The **GPT-4 Title Generator** is a plugin developed for the Question2Answer (Q2A) platform that automatically updates question titles using OpenAI's GPT-4 language model. The plugin generates meaningful and SEO-friendly titles based on the content provided by users, enhancing the quality of content on your platform.
 
+![Açıklama yazısı](/example.png)
+
 
 ## Table of Contents
 
